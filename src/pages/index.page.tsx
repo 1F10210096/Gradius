@@ -1,13 +1,16 @@
+
 import { useAtom } from 'jotai';
 import Konva from 'konva';
 import { useCallback, useEffect, useState } from 'react';
 import { Circle, Layer, Rect, Stage } from 'react-konva';
 import { userAtom } from 'src/atoms/user';
+import { useState } from 'react';
+import { Layer, Line, Stage } from 'react-konva';
 import { Loading } from 'src/components/Loading/Loading';
 import { apiClient } from 'src/utils/apiClient';
 const Home = () => {
   //黒い枠の中をクリックし、矢印ボタンを押すと、赤い点が動くよー
-  const [playerX, setPlayerX] = useState(4);
+  const [playerX, setPlayerX] = useState(5);
   const [playerY, setPlayerY] = useState(0);
   const [tamaX, settamaX] = useState(0);
   const [tamaY, settamaY] = useState(2);
@@ -21,16 +24,17 @@ const Home = () => {
   ]);
   const [bullet, setbullets] = useState<{ x: number; y: number }[]>([]);
   const [board, setBoard] = useState([
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   ]);
   const hoge = true;
   const keydown = async (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -170,39 +174,99 @@ const Home = () => {
         <div id="key">Y:{playerY}</div>
         <div id="key" />
       </div>
-      <Stage width={800} height={600}>
-        <Layer>
-          {board.map((row, y) =>
-            row.map(
-              (color, x) =>
-                color !== 0 && (
-                  <Rect
-                    key={`${x}-${y}`}
-                    x={x * 100 + 70}
-                    y={y * 100}
-                    width={100}
-                    height={100}
-                    fill="black"
-                  />
-                )
-            )
-          )}
-          {enemies.map((enemy, index) => (
-            <Circle key={index} x={enemy.x * 100} y={enemy.y * 100 + 50} radius={20} fill="green" />
-          ))}
-          {bullet.map((bullet, index) => (
-            <Circle
-              key={index}
-              x={bullet.x * 100 + 50}
-              y={bullet.y * 100 + 50}
-              radius={20}
-              fill="red"
-            />
-          ))}
-        </Layer>
-      </Stage>
+      <div
+        id="player"
+        style={{
+          position: 'absolute',
+          left: `${playerX}px`,
+          top: `${playerY}px`,
+          backgroundColor: 'red',
+          width: '10px',
+          height: '10px',
+        }}
+      />
+      <div className={styles.board}>
+        {board.map((row, y) =>
+          // eslint-disable-next-line complexity
+          row.map((color, x) => (
+            <div className={styles.cell} key={`${x}-${y}`} style={{ position: 'relative' }}>
+              {color !== 0 && (
+                <Stage width={40} height={40}>
+                  <Layer>
+                    <Line
+                      x={0}
+                      y={10}
+                      points={[0, 0, 5, 5, 15, 5]}
+                      closed
+                      strokeWidth={1}
+                      stroke="black"
+                      fill="white"
+                    />
+                    <Line
+                      x={5}
+                      y={15}
+                      points={[0, 0, 10, 0, 15, 2.5, 30, 2.5, 20, 7, 20, 5, 0, 5]}
+                      strokeWidth={1}
+                      closed
+                      stroke="black"
+                      fill="white"
+                    />
+                    <Line
+                      x={5}
+                      y={15}
+                      points={[0, 0, 0, 5, -3, 5, -3, 0]}
+                      strokeWidth={1}
+                      closed
+                      stroke="black"
+                      fill="white"
+                    />
+                    <Line
+                      x={5}
+                      y={15}
+                      points={[0, 0, 10, 0, 15, 2.5, 30, 2.5, 20, 7, 20, 5, 0, 5]}
+                      strokeWidth={1}
+                      closed
+                      stroke="black"
+                      fill="white"
+                    />
+                    <Line
+                      x={5}
+                      y={20}
+                      points={[0, 0, 20, 0, 20, 2, 7, 4]}
+                      strokeWidth={1}
+                      closed
+                      stroke="black"
+                      fill="white"
+                    />
+                    <Line
+                      x={15}
+                      y={12}
+                      points={[0, 0, 15, 5, 5, 5]}
+                      closed
+                      tension={0.5}
+                      strokeWidth={1}
+                      stroke="black"
+                      fill="red"
+                    />
+                  </Layer>
+                </Stage>
+              )}
+            </div>
+          ))
+        )}
+      </div>
     </>
   );
 };
 
+// Rectで書いたものをメモ用に残してます(すぐ消します)
+/*<Rect
+stroke="black"
+fill="white"
+strokeWidth={1}
+x={0}
+y={10}
+width={20}
+height={10}
+/>*/
 export default Home;
