@@ -38,7 +38,7 @@ $ docker-compose up -d
 ```
 
 ### 開発サーバー起動
-
+ run notios
 次回以降は以下のコマンドだけで開発できる
 
 ```sh
